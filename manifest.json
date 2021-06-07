@@ -1,0 +1,17 @@
+{
+  "name": "PostMessage builder",
+  "description": "Create your own postMessage events",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["storage", "tabs"],
+  "action": {
+    "default_popup": "dist/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://localhost:*/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "devtools_page": "devtools.html"
+}
