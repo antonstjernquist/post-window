@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createTab, ITab, getTabs, updateTab } from '../utils/tabs';
 import { uuidv4 } from '../utils/uuid';
 import {
+  CommandBar,
   ILabelStyles,
   IStyleSet,
   Label,
@@ -10,9 +11,10 @@ import {
 } from '@fluentui/react';
 import styled from 'styled-components';
 import EventTab from './EventTab';
+import { clearStorage } from '../utils/events';
 
 const Container = styled.div`
-  min-width: 50rem;
+  min-width: 40vw;
   min-height: 25rem;
   padding: 1rem;
 `;

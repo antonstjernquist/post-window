@@ -15,8 +15,14 @@ import {
   Text,
   TextField,
 } from '@fluentui/react';
-import { EventType, getEvents, PostMessageEvent } from '../utils/events';
+import {
+  createEvent,
+  EventType,
+  getEvents,
+  PostMessageEvent,
+} from '../utils/events';
 import Event from '../components/Event';
+import { uuidv4 } from '../utils/uuid';
 
 const Header = styled.div`
   display: flex;
@@ -150,7 +156,15 @@ export const EventTab = (props: EventTabProps) => {
               onDelete: handleDeleteTab,
               onRename: () => setIsEdit(true),
               onNewToggle: () => setNewEvent(EventType.TOGGLE),
-              onNewButton: () => setNewEvent(EventType.BUTTON),
+              onNewButton: () => {
+                createEvent({
+                  name: 'New event',
+                  event: '',
+                  payload: '',
+                  tabId: props.id,
+                  type: EventType.BUTTON,
+                }).then(setEvents);
+              },
               onNewSlider: () => setNewEvent(EventType.SLIDER),
             })}
           />
@@ -163,7 +177,7 @@ export const EventTab = (props: EventTabProps) => {
         ) : (
           <Stack tokens={{ childrenGap: 10 }}>
             {events.map(event => (
-              <Event {...event} />
+              <Event {...event} setEvents={setEvents} />
             ))}
           </Stack>
         )}
@@ -171,18 +185,6 @@ export const EventTab = (props: EventTabProps) => {
         <Modal
           isDarkOverlay
           isOpen={newEvent === EventType.TOGGLE}
-          onDismiss={onDismiss}
-        >
-          <CreateToggle
-            tab={props}
-            onDismiss={onDismiss}
-            setEvents={setEvents}
-          />
-        </Modal>
-
-        <Modal
-          isDarkOverlay
-          isOpen={newEvent === EventType.BUTTON}
           onDismiss={onDismiss}
         >
           <CreateToggle

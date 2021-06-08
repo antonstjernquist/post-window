@@ -11,6 +11,7 @@ import {
   TextField,
 } from '@fluentui/react';
 import { createEvent, EventType, PostMessageEvent } from '../utils/events';
+import { uuidv4 } from '../utils/uuid';
 
 const Container = styled.div`
   padding: 2rem;

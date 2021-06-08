@@ -2,28 +2,26 @@ import { DefaultButton, PrimaryButton, Stack, Toggle } from '@fluentui/react';
 import React, { useState } from 'react';
 import { EventType, PostMessageEvent } from '../utils/events';
 import { post } from '../utils/post';
+import ButtonEvent from './ButtonEvent';
 
-export const Event = ({ type, event, name, payload }: PostMessageEvent) => {
+interface EventProps extends PostMessageEvent {
+  setEvents(events: PostMessageEvent[]): void;
+}
+export const Event = (event: EventProps) => {
   const [toggleState, setToggleState] = useState(false);
 
-  if (type === EventType.BUTTON) {
-    return (
-      <Stack.Item>
-        <PrimaryButton onClick={() => post({ type: event, payload })}>
-          {name}
-        </PrimaryButton>
-      </Stack.Item>
-    );
+  if (event.type === EventType.BUTTON) {
+    return <ButtonEvent {...event} setEvents={event.setEvents} />;
   }
 
-  if (type === EventType.TOGGLE) {
+  if (event.type === EventType.TOGGLE) {
     return (
       <Stack.Item>
-        <span>{name}</span>
+        <span>{event.name}</span>
         <Toggle
           checked={toggleState}
           onClick={() => {
-            post({ type: event, payload: !toggleState });
+            post({ type: event.event, payload: !toggleState });
             setToggleState(prev => !prev);
           }}
         />
