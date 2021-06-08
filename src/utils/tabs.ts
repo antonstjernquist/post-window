@@ -1,6 +1,9 @@
+import { PostMessageEvent } from './events';
+
 export interface ITab {
   id: string;
   name: string;
+  events: PostMessageEvent[];
 }
 
 export const createTab = async (tab: ITab): Promise<ITab[]> => {
