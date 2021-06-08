@@ -1,9 +1,25 @@
-import { Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { createTab, ITab, getTabs, updateTab } from '../utils/tabs';
-import { PlusOutlined } from '@ant-design/icons';
-import EventTab from './EventTab';
 import { uuidv4 } from '../utils/uuid';
+import {
+  ILabelStyles,
+  IStyleSet,
+  Label,
+  Pivot,
+  PivotItem,
+} from '@fluentui/react';
+import styled from 'styled-components';
+import EventTab from './EventTab';
+
+const Container = styled.div`
+  min-width: 50rem;
+  min-height: 25rem;
+  padding: 1rem;
+`;
+
+const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
+  root: { marginTop: 10 },
+};
 
 const NEW_TAB_ID = 'NEW_TAB';
 const exampleTab: ITab = {
@@ -13,7 +29,6 @@ const exampleTab: ITab = {
 };
 
 export const EventTabs = () => {
-  const [activeTab, setActiveTab] = useState(exampleTab.id);
   const [tabs, setTabs] = useState<ITab[]>([]);
 
   useEffect(() => {
@@ -29,43 +44,35 @@ export const EventTabs = () => {
     });
   }, [getTabs, setTabs]);
 
-  const handleNewTab = (tab: string) => {
+  const handleNewTab = (item?: PivotItem) => {
     const id = uuidv4();
-    if (tab === NEW_TAB_ID) {
+    if (item?.props.id === NEW_TAB_ID) {
       createTab({ name: 'New tab', id, events: [] }).then(tabs => {
         setTabs(tabs);
-        setActiveTab(id);
       });
-
-      return;
     }
-
-    setActiveTab(tab);
   };
 
   return (
-    <div>
-      <Tabs
-        size='large'
-        type='card'
-        activeKey={activeTab}
-        onChange={handleNewTab}
+    <Container>
+      <Pivot
+        aria-label="Basic Pivot Example"
+        onLinkClick={handleNewTab}
+        overflowBehavior="menu"
       >
         {tabs.map(tab => {
           return (
-            <Tabs.TabPane tab={tab.name} key={tab.id}>
+            <PivotItem headerText={tab.name} key={tab.id} alwaysRender>
               <EventTab {...tab} setTabs={setTabs} />
-            </Tabs.TabPane>
+            </PivotItem>
           );
         })}
 
-        {/* Create new tab */}
-        <Tabs.TabPane
-          tab={<PlusOutlined style={{ margin: '0' }} />}
-          key={NEW_TAB_ID}
-        />
-      </Tabs>
-    </div>
+        <PivotItem id={NEW_TAB_ID} itemIcon={'Add'} key={NEW_TAB_ID}>
+          <Label styles={labelStyles}>Pivot #2</Label>
+        </PivotItem>
+      </Pivot>
+    </Container>
   );
 };
 

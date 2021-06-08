@@ -3,7 +3,7 @@ import EventTabs from './views/EventTabs';
 
 function App() {
   return (
-    <div style={{ margin: '1rem', minWidth: '55rem' }}>
+    <div>
       <EventTabs />
     </div>
   );

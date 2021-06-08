@@ -1,94 +1,195 @@
-import React, { useState } from 'react';
-import { PlusOutlined, DoubleRightOutlined } from '@ant-design/icons';
-import { Button, Tooltip, Divider, Modal, Table, message } from 'antd';
-import { ITab as IEventTab, ITab, updateTab } from '../utils/tabs';
+import React, { useEffect, useState } from 'react';
+import { deleteTab, ITab as IEventTab, ITab, updateTab } from '../utils/tabs';
 import styled from 'styled-components';
-import { Typography } from 'antd';
-import CreateEvent from '../components/CreateEvent';
+import CreateToggle from '../components/CreateToggle';
+import {
+  ActionButton,
+  CommandBar,
+  DefaultButton,
+  ICommandBarItemProps,
+  Modal,
+  PrimaryButton,
+  ResizeGroup,
+  Separator,
+  Stack,
+  Text,
+  TextField,
+} from '@fluentui/react';
+import { EventType, getEvents, PostMessageEvent } from '../utils/events';
+import Event from '../components/Event';
 
-const { Title } = Typography;
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
 const Container = styled.div`
-  padding: 1rem 2rem;
+  overflow: hidden;
+  padding: 0.5rem 0.5rem;
   display: flex;
   flex-direction: column;
 `;
 
-const SendEvent = styled(Button)`
-  margin-right: 1rem;
-`;
+interface GetItemsOptions {
+  onDelete(): void;
+  onRename(): void;
+  onNewToggle(): void;
+  onNewButton(): void;
+  onNewSlider(): void;
+}
+const getItems = ({
+  onDelete,
+  onRename,
+  onNewToggle,
+  onNewButton,
+  onNewSlider,
+}: GetItemsOptions): ICommandBarItemProps[] => [
+  {
+    key: 'newItem',
+    text: 'New',
+    iconProps: { iconName: 'Add' },
+    subMenuProps: {
+      items: [
+        {
+          key: 'eventToggle',
+          text: 'Toggle',
+          iconProps: { iconName: 'Switch' },
+          onClick: onNewToggle,
+        },
+        {
+          key: 'event',
+          text: 'Button',
+          iconProps: { iconName: 'ButtonControl' },
+          onClick: onNewButton,
+        },
+        {
+          key: 'event',
+          text: 'Slider',
+          iconProps: { iconName: 'Slider' },
+          onClick: onNewSlider,
+        },
+      ],
+    },
+  },
+  {
+    key: 'rename',
+    text: 'Rename',
+    iconProps: { iconName: 'Edit' },
+    onClick: onRename,
+  },
+  {
+    key: 'delete',
+    text: 'Delete',
+    iconProps: { iconName: 'Delete', style: { color: 'salmon' } },
+    onClick: onDelete,
+  },
+];
 
 export interface EventTabProps extends IEventTab {
   setTabs(tabs: ITab[]): void;
 }
 
 export const EventTab = (props: EventTabProps) => {
+  const [events, setEvents] = useState<PostMessageEvent[]>([]);
+  const [newNameValue, setNewNameValue] = useState(props.name);
   const [isEdit, setIsEdit] = useState(false);
-  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [newEvent, setNewEvent] = useState<EventType>();
 
-  const handleSuccess = () => {
-    message.success('Successfully added an event!', 2.5);
-    setIsCreatingEvent(false);
+  useEffect(() => {
+    getEvents(props.id).then(setEvents);
+  }, []);
+
+  const onDismiss = () => {
+    setNewEvent(undefined);
   };
 
-  const handleStopEditing = () => {
+  const handleTabEditName = () => {
     setIsEdit(false);
+    updateTab({ id: props.id, name: newNameValue, events }).then(props.setTabs);
   };
 
-  const handleTabEditName = (tab: string, name: string) => {
-    updateTab({ id: tab, name, events: props.events }).then(props.setTabs);
+  const handleDeleteTab = () => {
+    console.log('Removing tab:', props.id);
+    deleteTab(props.id).then(props.setTabs);
   };
 
   return (
     <>
       <Container>
-        <Title
-          level={5}
-          onClick={() => setIsEdit(prev => !prev)}
-          editable={{
-            icon: ' ',
-            editing: isEdit,
-            maxLength: 32,
-            autoSize: true,
-            tooltip: true,
-            onCancel: handleStopEditing,
-            onEnd: handleStopEditing,
-            onChange: name => handleTabEditName(props.id, name),
-          }}
-        >
-          {props.name}
-        </Title>
+        <Header>
+          {isEdit ? (
+            <Stack horizontal>
+              <TextField
+                autoFocus
+                value={newNameValue}
+                onKeyPress={({ key }) => key === 'Enter' && handleTabEditName()}
+                onChange={event => setNewNameValue(event.currentTarget.value)}
+              />
+              <PrimaryButton
+                onClick={handleTabEditName}
+                style={{ marginLeft: '0.5rem' }}
+              >
+                Save
+              </PrimaryButton>
+              <DefaultButton
+                onClick={() => setIsEdit(false)}
+                style={{ marginLeft: '0.5rem' }}
+              >
+                Close
+              </DefaultButton>
+            </Stack>
+          ) : (
+            <Text style={{ flex: 1 }} variant="xLarge">
+              {props.name}
+            </Text>
+          )}
 
-        <Divider orientation='left' style={{ margin: '0.5rem 0 2rem' }} />
+          <CommandBar
+            items={getItems({
+              onDelete: handleDeleteTab,
+              onRename: () => setIsEdit(true),
+              onNewToggle: () => setNewEvent(EventType.TOGGLE),
+              onNewButton: () => setNewEvent(EventType.BUTTON),
+              onNewSlider: () => setNewEvent(EventType.SLIDER),
+            })}
+          />
+        </Header>
 
-        <div>
-          <SendEvent
-            size='large'
-            icon={<PlusOutlined />}
-            onClick={() => setIsCreatingEvent(true)}
-          >
-            Create new event
-          </SendEvent>
+        <Separator />
 
-          <Tooltip title={props.name}>
-            <SendEvent
-              disabled={props.events.length === 0}
-              type='primary'
-              size='large'
-              icon={<DoubleRightOutlined />}
-            >
-              Send all events
-            </SendEvent>
-          </Tooltip>
-        </div>
+        {events.length === 0 ? (
+          <Text variant="medium">There are no events yet</Text>
+        ) : (
+          <Stack tokens={{ childrenGap: 10 }}>
+            {events.map(event => (
+              <Event {...event} />
+            ))}
+          </Stack>
+        )}
 
         <Modal
-          okText='Create event'
-          visible={isCreatingEvent}
-          onOk={handleSuccess}
-          onCancel={() => setIsCreatingEvent(false)}
+          isDarkOverlay
+          isOpen={newEvent === EventType.TOGGLE}
+          onDismiss={onDismiss}
         >
-          <CreateEvent tab={{ ...props }} />
+          <CreateToggle
+            tab={props}
+            onDismiss={onDismiss}
+            setEvents={setEvents}
+          />
+        </Modal>
+
+        <Modal
+          isDarkOverlay
+          isOpen={newEvent === EventType.BUTTON}
+          onDismiss={onDismiss}
+        >
+          <CreateToggle
+            tab={props}
+            onDismiss={onDismiss}
+            setEvents={setEvents}
+          />
         </Modal>
       </Container>
     </>

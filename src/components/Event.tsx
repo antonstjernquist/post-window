@@ -1,40 +1,33 @@
+import { DefaultButton, PrimaryButton, Stack, Toggle } from '@fluentui/react';
 import React, { useState } from 'react';
-import { Button } from 'semantic-ui-react';
-import { PostMessageEvent } from '../utils/events';
+import { EventType, PostMessageEvent } from '../utils/events';
 import { post } from '../utils/post';
 
-export const Event = ({
-  type,
-  event,
-  label,
-  payload,
-  buttonColor,
-}: PostMessageEvent) => {
+export const Event = ({ type, event, name, payload }: PostMessageEvent) => {
   const [toggleState, setToggleState] = useState(false);
 
-  if (type === 'button') {
+  if (type === EventType.BUTTON) {
     return (
-      <Button
-        color={buttonColor}
-        onClick={() => post({ type: event, payload })}
-      >
-        {label}
-      </Button>
+      <Stack.Item>
+        <PrimaryButton onClick={() => post({ type: event, payload })}>
+          {name}
+        </PrimaryButton>
+      </Stack.Item>
     );
   }
 
-  if (type === 'toggle') {
+  if (type === EventType.TOGGLE) {
     return (
-      <Button
-        active={toggleState}
-        label={toggleState ? '(On)' : '(Off)'}
-        content={label}
-        color={buttonColor}
-        onClick={() => {
-          post({ type: event, payload: !toggleState });
-          setToggleState(prev => !prev);
-        }}
-      />
+      <Stack.Item>
+        <span>{name}</span>
+        <Toggle
+          checked={toggleState}
+          onClick={() => {
+            post({ type: event, payload: !toggleState });
+            setToggleState(prev => !prev);
+          }}
+        />
+      </Stack.Item>
     );
   }
 
