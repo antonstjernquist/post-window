@@ -1,16 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Base = styled.div`
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
+// const Base = styled.div`
+//   overflow: hidden;
+//   margin-bottom: 0.5rem;
+//   padding-bottom: 0.5rem;
 
-  /* First child of base ROW should not be indented. */
-  & > div > div {
-    margin-left: 0;
-  }
-`;
+//   /* First child of base ROW should not be indented. */
+//   & > div > div {
+//     margin-left: 0;
+//   }
+// `;
 
 const ObjectComponent = styled.div`
   position: relative;
@@ -88,9 +88,15 @@ interface Obj<T> {
 }
 type CircularObj = Obj<string | number | CircularObj>;
 
-export const renderPayload = (payload: CircularObj, deep = 0) => {
-  console.log('Mapping payload to React', payload);
-
+export interface RenderPayloadOptions {
+  onValueEdit(path: string[]): void;
+}
+export const renderPayload = (
+  payload: CircularObj,
+  options: RenderPayloadOptions,
+  path = [] as string[],
+  deep = 0
+) => {
   if (deep > 3) {
     console.log('Too deep, abort');
     return null;
@@ -102,14 +108,14 @@ export const renderPayload = (payload: CircularObj, deep = 0) => {
         const k = key as keyof typeof payload;
         const value = payload[k];
 
-        console.log(value, key);
-
         if (typeof value !== 'object') {
           return (
             <ObjectComponent key={key}>
               <Row>
-                <Key>{key}</Key>
-                <Value>{value}</Value>
+                {key && <Key>{key}</Key>}
+                <Value onClick={() => options.onValueEdit([...path, key])}>
+                  {value}
+                </Value>
               </Row>
             </ObjectComponent>
           );
@@ -120,7 +126,7 @@ export const renderPayload = (payload: CircularObj, deep = 0) => {
             <Row>
               <Key isObject>{key}</Key>
             </Row>
-            {renderPayload(value, deep + 1)}
+            {renderPayload(value, options, [...path, key], deep + 1)}
           </ObjectComponent>
         );
       })}

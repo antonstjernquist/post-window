@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { createTab, ITab, getTabs, updateTab } from '../utils/tabs';
+import { createTab, ITab, getTabs } from '../utils/tabs';
 import { uuidv4 } from '../utils/uuid';
 import {
-  CommandBar,
   ILabelStyles,
   IStyleSet,
   Label,
@@ -11,7 +10,6 @@ import {
 } from '@fluentui/react';
 import styled from 'styled-components';
 import EventTab from './EventTab';
-import { clearStorage } from '../utils/events';
 
 const Container = styled.div`
   min-width: 40vw;
@@ -41,7 +39,6 @@ export const EventTabs = () => {
         setTabs([exampleTab]);
         return;
       }
-      console.log({ tabs });
       setTabs(tabs);
     });
   }, [getTabs, setTabs]);
@@ -58,9 +55,9 @@ export const EventTabs = () => {
   return (
     <Container>
       <Pivot
-        aria-label="Basic Pivot Example"
+        aria-label='Basic Pivot Example'
         onLinkClick={handleNewTab}
-        overflowBehavior="menu"
+        overflowBehavior='menu'
       >
         {tabs.map(tab => {
           return (

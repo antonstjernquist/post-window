@@ -4,6 +4,7 @@ export enum EventType {
   TOGGLE = 'TOGGLE',
   BUTTON = 'BUTTON',
   SLIDER = 'SLIDER',
+  SIMPLE = 'SIMPLE',
 }
 export interface PostMessageEvent {
   id: string;
@@ -23,10 +24,17 @@ export const setEvents = async (events: PostMessageEvent[]) => {
   return events;
 };
 
-export const getEvents = async (tabId: string): Promise<PostMessageEvent[]> => {
+export const getEvents = async (
+  tabId?: string
+): Promise<PostMessageEvent[]> => {
   if (import.meta.env.DEV) {
     const rawEvents = localStorage.getItem('events') || '[]';
     const unfilteredEvents = JSON.parse(rawEvents) as PostMessageEvent[];
+
+    if (!tabId) {
+      return unfilteredEvents;
+    }
+
     const events =
       unfilteredEvents.filter(event => event.tabId === tabId) ?? [];
     return events;
@@ -42,17 +50,25 @@ export const getEvents = async (tabId: string): Promise<PostMessageEvent[]> => {
 };
 
 export const updateEvent = async (event: PostMessageEvent) => {
-  const events = await getEvents(event.tabId);
+  const events = await getEvents();
   const updatedEvents = events.map(oldEvent =>
     oldEvent.id === event.id ? event : oldEvent
   );
-  return setEvents(updatedEvents);
+
+  setEvents(updatedEvents);
+  return await getEvents(event.tabId);
 };
 
 export const createEvent = async (event: Omit<PostMessageEvent, 'id'>) => {
-  const events = await getEvents(event.tabId);
+  const events = await getEvents();
+  setEvents([...events, { ...event, id: uuidv4() }]);
+  return await getEvents(event.tabId);
+};
 
-  return setEvents([...events, { ...event, id: uuidv4() }]);
+export const deleteEvent = async (tabId: string, eventId: string) => {
+  const events = await getEvents();
+  setEvents(events.filter(event => event.id !== eventId));
+  return await getEvents(tabId);
 };
 
 export const clearStorage = () => {

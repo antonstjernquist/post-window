@@ -1,4 +1,4 @@
-import { POST_MESSAGE_BUILDER_EVENT } from '../contants';
+import { POST_MESSAGE_BUILDER_EVENT } from '../constants';
 
 export interface Event {
   type: string;
@@ -6,7 +6,7 @@ export interface Event {
 }
 export interface Payload {
   type: string;
-  payload: string | boolean;
+  payload: number | string | boolean;
 }
 export const post = (payload: Payload) => {
   /* Development MODE - Send event instant! */

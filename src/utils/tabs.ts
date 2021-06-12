@@ -21,8 +21,6 @@ export const getTabs = async (): Promise<ITab[]> => {
     const rawTabs = localStorage.getItem('tabs') || '[]';
     const tabs = JSON.parse(rawTabs);
 
-    console.log('Retrieved tabs:', tabs);
-
     /* If we haven't created any tabs yet */
     if (!tabs) {
       return [];
@@ -42,7 +40,6 @@ export const getTabs = async (): Promise<ITab[]> => {
 
   return await new Promise(resolve => {
     chrome.storage.sync.get('tabs', ({ tabs = [] }) => {
-      console.log('Retrieved tabs:', tabs);
       resolve(tabs as ITab[]);
     });
   });
