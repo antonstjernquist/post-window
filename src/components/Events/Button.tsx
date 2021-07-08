@@ -28,7 +28,8 @@ export const SimpleButtonEvent = ({
   const handleChangePayload = (
     ev: FormEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setPayload(ev.currentTarget.value);
+    const payload = ev.currentTarget.value;
+    setPayload(payload);
     updateEvent({ ...event, payload });
   };
 

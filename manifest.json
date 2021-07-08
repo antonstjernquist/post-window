@@ -1,5 +1,5 @@
 {
-  "name": "PostMessage builder",
+  "name": "Window Post",
   "description": "Create your own postMessage events",
   "version": "1.0",
   "manifest_version": 3,
@@ -9,9 +9,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://localhost:*/*"],
+      "matches": ["*://*/*"],
       "js": ["contentScript.js"]
     }
   ],
+  "icons": {
+    "128": "icons/icon128.png"
+  },
   "devtools_page": "devtools.html"
 }

@@ -17,8 +17,9 @@ export const ToggleEvent = ({ isEdit, event, setEvents }: ToggleEventProps) => {
   const [isActive, setIsAtive] = useState(false);
 
   const handleToggle = () => {
-    setIsAtive(prev => !prev);
-    post({ type: event.event, payload: isActive });
+    const payload = !isActive;
+    setIsAtive(payload);
+    post({ type: event.event, payload });
   };
 
   if (!isEdit) {

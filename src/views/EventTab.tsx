@@ -53,8 +53,8 @@ const getEditItems = ({
 }: GetEditItemsOptions): ICommandBarItemProps[] => [
   {
     key: 'prod',
-    text: 'Stop editing',
-    iconProps: { iconName: 'Blocked' },
+    text: 'Save',
+    iconProps: { iconName: 'Save' },
     onClick: onEdit,
   },
   {
@@ -217,7 +217,7 @@ export const EventTab = (props: EventTabProps) => {
                     })
                   : getItems({
                       onDelete: handleDeleteTab,
-                      onEdit: () => setIsEditView(false),
+                      onEdit: () => setIsEditView(true),
                       onRename: () => setIsEditTabname(true),
                     })
               }
@@ -231,7 +231,7 @@ export const EventTab = (props: EventTabProps) => {
           <Text variant='medium'>There are no events yet</Text>
         )}
 
-        {events.length > 1 && (
+        {events.length > 0 && (
           <Stack tokens={{ childrenGap: 10 }}>
             {events.map(event => (
               <Event

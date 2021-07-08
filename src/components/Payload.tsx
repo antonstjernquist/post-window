@@ -3,9 +3,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { renderPayload } from './Object';
 import { assocPath, dissocPath, hasPath } from 'ramda';
-import { PostMessageEvent, setEvents, updateEvent } from '../utils/events';
-import Tutorial from './Tutorial';
-import { enterValueSlowly } from '../utils/animation';
+import { PostMessageEvent, updateEvent } from '../utils/events';
 
 const Container = styled.div`
   overflow: hidden;
@@ -35,6 +33,7 @@ interface PayloadProps {
   event: PostMessageEvent;
   isHelpVisible: boolean;
   onDismissHelp: () => void;
+  setEvents(events: PostMessageEvent[]): void;
 }
 
 export const Payload = (props: PayloadProps) => {
@@ -63,10 +62,14 @@ export const Payload = (props: PayloadProps) => {
     const newPayload = valueInput
       ? assocPath(keys, valueInput, payload)
       : dissocPath(keys, payload);
-
     setPayload(newPayload);
-    updateEvent({ ...props.event, payload: JSON.stringify(newPayload) }).then(
-      setEvents
+
+    console.log('new payload.', newPayload);
+    const stringPayload = JSON.stringify(newPayload);
+    console.log({ stringPayload });
+
+    updateEvent({ ...props.event, payload: stringPayload }).then(
+      props.setEvents
     );
     setValueInput('');
     setKeyInput('');

@@ -42,8 +42,14 @@ export const getEvents = async (
 
   return await new Promise(resolve => {
     chrome.storage.sync.get('events', ({ events = [] }) => {
-      const evs: PostMessageEvent[] = events;
-      const filteredEvents = evs.filter(event => event.tabId === tabId);
+      const unfilteredEvents: PostMessageEvent[] = events;
+      if (!tabId) {
+        return resolve(unfilteredEvents);
+      }
+
+      const filteredEvents = unfilteredEvents.filter(
+        event => event.tabId === tabId
+      );
       resolve(filteredEvents);
     });
   });
@@ -51,10 +57,12 @@ export const getEvents = async (
 
 export const updateEvent = async (event: PostMessageEvent) => {
   const events = await getEvents();
+  console.log({ events });
   const updatedEvents = events.map(oldEvent =>
     oldEvent.id === event.id ? event : oldEvent
   );
 
+  console.log({ updatedEvents });
   setEvents(updatedEvents);
   return await getEvents(event.tabId);
 };

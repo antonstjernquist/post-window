@@ -1,4 +1,4 @@
-import React, { FormEvent, FormEventHandler, useState } from 'react';
+import React, { useState } from 'react';
 import { Stack, DefaultButton, Text, PrimaryButton } from '@fluentui/react';
 import styled from 'styled-components';
 import { PostMessageEvent } from '../../utils/events';
@@ -21,6 +21,7 @@ export const ButtonEvent = ({ setEvents, event, isEdit }: ButtonEventProps) => {
   const [isHelpVisible, setIsHelpVisible] = useState(false);
 
   const handleSend = () => {
+    console.log('sending ev', event);
     post({ payload: event.payload, type: event.event });
   };
 
@@ -47,6 +48,7 @@ export const ButtonEvent = ({ setEvents, event, isEdit }: ButtonEventProps) => {
 
       <Payload
         event={event}
+        setEvents={setEvents}
         isHelpVisible={isHelpVisible}
         onDismissHelp={() => setIsHelpVisible(false)}
       />

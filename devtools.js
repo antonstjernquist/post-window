@@ -1,5 +1,5 @@
 chrome.devtools.panels.create(
-  'FiveM - Postmessage builder',
+  'Post',
   null,
   '/dist/index.html',
   null
